@@ -1,36 +1,174 @@
-Vibe coding is a software creation style where you write zero traditional code. Instead, you talk or type in plain language to an AI agent, telling it what app or feature you want. You focus entirely on the final result and the "vibe" of the project, letting the AI handle all logic, design, and debugging. [1, 2, 3, 4] 
-## How Vibe Coding Works
+# Vibe Shop – Product Management Dashboard
 
-* Intent over Syntax: You state your goals using natural language or voice prompts rather than typing programming commands.
-* Trusting the AI: You stop reading individual lines of code or checking every small file change.
-* Iterative Fixes: If something breaks or bugs appear, you paste the error message straight back into the AI and ask it to fix it. [4, 5] 
+A modern, reactive product management dashboard built with **Vite + React 18**, **TypeScript**, and **Tailwind CSS**.  
+This project follows a **"vibe coding"** philosophy – clean, efficient, and enjoyable development experience with a focus on smooth interactions and a polished UI.
 
-## Popular Vibe Coding Tools
+---
 
-* AI Code Editors: Specialized setups like Cursor or Windsurf that manage entire files and projects locally.
-* Web-based Builders: Platforms like [Google AI Studio](https://aistudio.google.com/vibe-code) or specialized app-creation ecosystems that let you prompt and deploy in one click.
-* Voice-to-Text: Tools like Superwhisper used alongside AI models to dictate complete features on the fly. [1, 4, 6, 7] 
+## 🚀 Features
 
-## Pros and Cons
+- **Authentication** – Login form with field validation and persistent session (via token storage).
+- **Product Listing** – Fetches products from DummyJSON API with loading states and error handling.
+- **Sorting** – Sort by any column (e.g., price, rating) with persistent state.
+- **Search** – Real-time product search via the API.
+- **Add Product** – In-memory product addition with a modal form and toast notifications.
+- **Visual Feedback** – Products with rating < 3.5 are highlighted in red; progress bar on load.
+- **Responsive UI** – Matches the provided Figma layout exactly.
+- **State Management** – Zustand for global state, persists sorting and session preferences.
 
-* Pros: Builds apps 10x faster, lowers the skill barrier for non-programmers, and turns quick ideas into live prototypes instantly.
-* Cons: Harder to maintain large or complex systems, potential hidden security vulnerabilities, and reliance on the AI not to "hallucinate" critical logic. [5, 8, 9, 10] 
+---
 
-· 1970 M01 1
-If you want to try vibe coding, tell me:
+## 🛠️ Tech Stack
 
-* Do you have a specific app or project idea in mind?
-* Are you looking for a web-based builder or a desktop code editor?
+| Category       | Technologies                                                                 |
+|----------------|------------------------------------------------------------------------------|
+| Build Tool     | [Vite](https://vitejs.dev/)                                                  |
+| Framework      | [React 18+](https://reactjs.org/)                                            |
+| Language       | [TypeScript](https://www.typescriptlang.org/) (strict mode)                  |
+| State Management | [Zustand](https://zustand-demo.pmnd.rs/)                                  |
+| Styling        | [Tailwind CSS](https://tailwindcss.com/)                                     |
+| HTTP Client    | Fetch API (native)                                                          |
+| Notifications  | Custom toast system (or `react-hot-toast` – flexible)                       |
+| Compatibility  | Latest Google Chrome (and modern browsers)                                  |
 
-I can help you outline your first prompt or choose the right tool to start.
+---
 
-[1] [https://skillbox.ru](https://skillbox.ru/media/code/vibe-coding/)
-[2] [https://www.youtube.com](https://www.youtube.com/shorts/f4ydKj_8GTs)
-[3] [https://github.com](https://github.com/resources/articles/what-is-vibe-coding)
-[4] [https://www.youtube.com](https://www.youtube.com/shorts/8TQaJDCw-dE)
-[5] https://vibe-coding.fr
-[6] [https://aistudio.google.com](https://aistudio.google.com/vibe-code)
-[7] [https://www.youtube.com](https://www.youtube.com/watch?v=-VuZmoc-Sq8&vl=en)
-[8] [https://en.wikipedia.org](https://en.wikipedia.org/wiki/Vibe_coding)
-[9] [https://practicum.yandex.ru](https://practicum.yandex.ru/blog/chto-takoe-vibe-coding/)
-[10] [https://cloud.google.com](https://cloud.google.com/discover/what-is-vibe-coding)
+## 🎨 Design
+
+The user interface is **pixel-perfect** with the [Figma layout](<link-to-figma>).  
+All components, spacing, colors, and typography follow the design system provided.
+
+---
+
+## 📡 API Integration
+
+- **Products**: [DummyJSON Products](https://dummyjson.com/docs/products)  
+- **Authentication**: [DummyJSON Auth](https://dummyjson.com/docs/auth)
+
+All API calls are handled via asynchronous functions with proper error handling and loading states.
+
+---
+
+## 📋 Functional Requirements
+
+### 1. Login Form
+- **Validation**: All fields are required.
+- **Error Handling**: Server errors are displayed below the respective fields or via a notification.
+- **"Create" link** is a non-functional placeholder.
+- **Session Persistence**:
+  - If **"Remember me"** is checked → token is stored in `localStorage` (persists after browser restart).
+  - If unchecked → token is stored in `sessionStorage` (cleared when the tab is closed).
+
+### 2. Product List Page
+- **Layout**: Matches Figma columns.
+- **Loading**: Shows a progress bar while fetching data.
+- **Data**: Fetches from DummyJSON API.
+- **Sorting**:
+  - Sort by any column (e.g., price, rating).
+  - Sorting state is persisted (e.g., via Zustand).
+- **Add Product**:
+  - Click "Add" opens a modal form with fields: **Name**, **Price**, **Vendor**, **SKU**.
+  - On successful addition, a **toast notification** appears.
+  - Products are stored locally (no API save required).
+- **UI Logic**:
+  - Products with rating < 3.5 are highlighted in **red**.
+  - The three-dot icon (⋮) serves as a placeholder for:
+    - Refresh the table
+    - Sort ascending/descending
+  - Sorting indicators are visually intuitive (arrow icons).
+- **Search**: Search products via API (query parameter).
+
+---
+
+## 📦 Installation & Setup
+
+1. **Clone the repository**  
+   ```bash
+   git clone https://github.com/your-username/vibe-shop.git
+   cd vibe-shop
+   ```
+
+2. **Install dependencies**  
+   ```bash
+   npm install
+   # or
+   yarn install
+   ```
+
+3. **Start the development server**  
+   ```bash
+   npm run dev
+   # or
+   yarn dev
+   ```
+
+4. **Build for production**  
+   ```bash
+   npm run build
+   # or
+   yarn build
+   ```
+
+5. **Preview the production build**  
+   ```bash
+   npm run preview
+   # or
+   yarn preview
+   ```
+
+---
+
+## 🧪 Testing & Linting
+
+- **TypeScript**: `tsc --noEmit` for type checking.
+- **ESLint**: `npm run lint` (if configured).
+- **Prettier**: Format code with `npm run format`.
+
+---
+
+## 📁 Project Structure
+
+```
+src/
+├── components/       # Reusable UI components (Button, Input, Modal, Toast, etc.)
+├── pages/            # LoginPage, ProductListPage
+├── store/            # Zustand stores (auth, products, sort, etc.)
+├── hooks/            # Custom hooks (useFetch, useLocalStorage, etc.)
+├── services/         # API service functions
+├── types/            # TypeScript interfaces and types
+├── utils/            # Helper functions (validators, formatters)
+├── styles/           # Tailwind imports and custom CSS
+└── App.tsx           # Main app with routes
+```
+
+---
+
+## 🔮 Future Improvements
+
+- Implement API save for new products.
+- Add pagination/infinite scroll.
+- Unit and integration tests with Vitest.
+- Dark mode toggle.
+- More advanced sorting (multi-column).
+
+---
+
+## 👨‍💻 Contributing
+
+Contributions are welcome! Please open an issue or submit a pull request.
+
+---
+
+## 📄 License
+
+[MIT](LICENSE)
+
+---
+
+## 💬 Contact
+
+For any questions, reach out to [your-email] or open an issue.
+
+---
+
+**Happy vibing! ✨**
