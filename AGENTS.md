@@ -13,13 +13,6 @@ Target browser: latest Google Chrome.
 
 ## Project Structure (FSD)
 
-- `src/app/` - App initialization, routing, global providers
-- `src/pages/` - Page-level components (each page is a slice)
-- `src/widgets/` - Reusable complex UI blocks (header, sidebar, etc.)
-- `src/features/` - User scenarios (auth, product management, sorting)
-- `src/entities/` - Business entities (Product, User)
-- `src/shared/` - Reusable utilities, UI kit, API clients
-
 ## Code Style
 
 - TypeScript: strict mode enabled (`strict: true`)
