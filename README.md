@@ -137,7 +137,6 @@ src/
 ├── services/         # API service functions
 ├── types/            # TypeScript interfaces and types
 ├── utils/            # Helper functions (validators, formatters)
-├── styles/           # Tailwind imports and custom CSS
 └── App.tsx           # Main app with routes
 ```
 
