@@ -1,0 +1,162 @@
+openapi: 3.0.3
+info:
+  title: DummyJSON Auth API
+  version: "1.0.0"
+  description: Endpoints for authentication, retrieving current user, and refreshing tokens.
+
+servers:
+  - url: https://dummyjson.com
+
+tags:
+  - name: Auth
+    description: User authentication and authorization
+
+paths:
+  /auth/login:
+    post:
+      tags: [Auth]
+      summary: Login user and get tokens
+      description: >
+        Authenticates a user by username/password and returns an accessToken
+        and refreshToken. You can use any credentials from /users.
+        Tokens are returned both in the response body and in cookies
+        (if credentials: include is used).
+      operationId: loginUser
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - username
+                - password
+              properties:
+                username:
+                  type: string
+                  example: emilys
+                password:
+                  type: string
+                  format: password
+                  example: emilyspass
+                expiresInMins:
+                  type: integer
+                  description: Access token lifetime in minutes (optional, default 60)
+                  example: 30
+      responses:
+        "200":
+          description: Successful login, returns user data and tokens
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthLoginResponse"
+        "400":
+          description: Invalid credentials
+        "401":
+          description: Unauthorized request
+
+  /auth/me:
+    get:
+      tags: [Auth]
+      summary: Get current authenticated user
+      operationId: getAuthUser
+      parameters:
+        - name: Authorization
+          in: header
+          required: true
+          schema:
+            type: string
+            example: "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+      responses:
+        "200":
+          description: Current user data
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        "401":
+          description: Token missing, invalid, or expired
+
+  /auth/refresh:
+    post:
+      tags: [Auth]
+      summary: Refresh auth session
+      description: >
+        Extends the session and creates a new accessToken (and refreshToken)
+        without re‑entering username and password. The refreshToken can be
+        provided in the request body or taken from cookies.
+      operationId: refreshAuthToken
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                refreshToken:
+                  type: string
+                  description: >
+                    Optional. If not provided, the server uses the value from the cookie.
+                expiresInMins:
+                  type: integer
+                  description: Lifetime of the new accessToken in minutes (optional, default 60)
+                  example: 30
+      responses:
+        "200":
+          description: New tokens successfully issued
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthTokens"
+        "401":
+          description: refreshToken invalid or expired
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        username:
+          type: string
+          example: emilys
+        email:
+          type: string
+          format: email
+          example: emily.johnson@x.dummyjson.com
+        firstName:
+          type: string
+          example: Emily
+        lastName:
+          type: string
+          example: Johnson
+        gender:
+          type: string
+          example: female
+        image:
+          type: string
+          format: uri
+          example: https://dummyjson.com/icon/emilys/128
+
+    AuthTokens:
+      type: object
+      properties:
+        accessToken:
+          type: string
+          description: JWT access token (also returned in a cookie)
+        refreshToken:
+          type: string
+          description: JWT refresh token (also returned in a cookie)
+
+    AuthLoginResponse:
+      allOf:
+        - $ref: "#/components/schemas/User"
+        - $ref: "#/components/schemas/AuthTokens"
