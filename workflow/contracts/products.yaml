@@ -1,0 +1,468 @@
+openapi: 3.0.3
+info:
+  title: DummyJSON Products API
+  version: "1.0.0"
+  description: >
+    Endpoints for working with products: getting a list, search, pagination,
+    sorting, categories, as well as simulation of adding/updating/deleting
+    (changes are not saved on the server).
+
+servers:
+  - url: https://dummyjson.com
+
+tags:
+  - name: Products
+    description: Product operations
+
+paths:
+  /products:
+    get:
+      tags: [Products]
+      summary: Get all products
+      description: >
+        Returns a list of products. By default — 30 items.
+        Supports pagination (limit/skip), sorting (sortBy/order)
+        and selection of specific fields (select).
+      operationId: getAllProducts
+      parameters:
+        - name: limit
+          in: query
+          required: false
+          description: Number of items to return. limit=0 — return all products.
+          schema:
+            type: integer
+            default: 30
+            example: 10
+        - name: skip
+          in: query
+          required: false
+          description: Number of items to skip (for pagination).
+          schema:
+            type: integer
+            default: 0
+            example: 10
+        - name: select
+          in: query
+          required: false
+          description: Comma-separated list of fields to return.
+          schema:
+            type: string
+            example: "title,price"
+        - name: sortBy
+          in: query
+          required: false
+          description: Field name to sort by.
+          schema:
+            type: string
+            example: title
+        - name: order
+          in: query
+          required: false
+          description: Sort order.
+          schema:
+            type: string
+            enum: [asc, desc]
+            example: asc
+      responses:
+        "200":
+          description: List of products
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProductListResponse"
+
+  /products/{id}:
+    get:
+      tags: [Products]
+      summary: Get a single product
+      description: Returns a single product by its id.
+      operationId: getProductById
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Product ID
+          schema:
+            type: integer
+            example: 1
+      responses:
+        "200":
+          description: Product data
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Product"
+        "404":
+          description: Product not found
+
+    put:
+      tags: [Products]
+      summary: Update a product
+      description: >
+        Simulates a PUT/PATCH request and returns the updated product
+        with modified fields. No actual change occurs on the server.
+      operationId: updateProductPut
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID of the product to update
+          schema:
+            type: integer
+            example: 1
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              description: Any product fields to change
+              example:
+                title: "iPhone Galaxy +1"
+      responses:
+        "200":
+          description: Product with updated fields
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Product"
+        "404":
+          description: Product not found
+
+    patch:
+      tags: [Products]
+      summary: Update a product (partial)
+      description: >
+        Simulates a PATCH request and returns the updated product
+        with modified fields. No actual change occurs on the server.
+      operationId: updateProductPatch
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID of the product to update
+          schema:
+            type: integer
+            example: 1
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              description: Any product fields to change
+              example:
+                title: "iPhone Galaxy +1"
+      responses:
+        "200":
+          description: Product with updated fields
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Product"
+        "404":
+          description: Product not found
+
+    delete:
+      tags: [Products]
+      summary: Delete a product
+      description: >
+        Simulates a DELETE request and returns the deleted product
+        with isDeleted and deletedOn fields. No actual deletion occurs on the server.
+      operationId: deleteProduct
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID of the product to delete
+          schema:
+            type: integer
+            example: 1
+      responses:
+        "200":
+          description: Deleted product
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DeletedProduct"
+        "404":
+          description: Product not found
+
+  /products/add:
+    post:
+      tags: [Products]
+      summary: Add a new product
+      description: >
+        Simulates a POST request and returns the created product with a new id.
+        No actual saving on the server.
+      operationId: addProduct
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              description: Arbitrary fields of the new product
+              example:
+                title: "BMW Pencil"
+      responses:
+        "201":
+          description: Created product
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Product"
+
+  /products/search:
+    get:
+      tags: [Products]
+      summary: Search products
+      description: Search products by text query.
+      operationId: searchProducts
+      parameters:
+        - name: q
+          in: query
+          required: true
+          description: Search query
+          schema:
+            type: string
+            example: phone
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            example: 10
+        - name: skip
+          in: query
+          required: false
+          schema:
+            type: integer
+            example: 0
+      responses:
+        "200":
+          description: Search results
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProductListResponse"
+
+  /products/categories:
+    get:
+      tags: [Products]
+      summary: Get all product categories
+      description: Returns a list of categories with their slug, name and url.
+      operationId: getProductCategories
+      responses:
+        "200":
+          description: List of categories
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ProductCategory"
+
+  /products/category-list:
+    get:
+      tags: [Products]
+      summary: Get product category list
+      description: Returns a list of categories as an array of strings (slugs).
+      operationId: getProductCategoryList
+      responses:
+        "200":
+          description: List of category slugs
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+                example: ["beauty", "fragrances", "furniture", "smartphones"]
+
+  /products/category/{category}:
+    get:
+      tags: [Products]
+      summary: Get products by category
+      description: Returns products belonging to the specified category.
+      operationId: getProductsByCategory
+      parameters:
+        - name: category
+          in: path
+          required: true
+          description: Category slug (e.g., smartphones)
+          schema:
+            type: string
+            example: smartphones
+      responses:
+        "200":
+          description: Products of the specified category
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProductListResponse"
+
+components:
+  schemas:
+    Dimensions:
+      type: object
+      properties:
+        width:
+          type: number
+          example: 23.17
+        height:
+          type: number
+          example: 14.43
+        depth:
+          type: number
+          example: 28.01
+
+    Review:
+      type: object
+      properties:
+        rating:
+          type: integer
+          example: 5
+        comment:
+          type: string
+          example: "Very satisfied!"
+        date:
+          type: string
+          format: date-time
+        reviewerName:
+          type: string
+          example: "Scarlett Wright"
+        reviewerEmail:
+          type: string
+          format: email
+          example: "scarlett.wright@x.dummyjson.com"
+
+    ProductMeta:
+      type: object
+      properties:
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        barcode:
+          type: string
+          example: "9164035109868"
+        qrCode:
+          type: string
+
+    Product:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        title:
+          type: string
+          example: "Essence Mascara Lash Princess"
+        description:
+          type: string
+        category:
+          type: string
+          example: beauty
+        price:
+          type: number
+          example: 9.99
+        discountPercentage:
+          type: number
+          example: 7.17
+        rating:
+          type: number
+          example: 4.94
+        stock:
+          type: integer
+          example: 5
+        tags:
+          type: array
+          items:
+            type: string
+          example: ["beauty", "mascara"]
+        brand:
+          type: string
+          example: Essence
+        sku:
+          type: string
+          example: "RCH45Q1A"
+        weight:
+          type: number
+          example: 2
+        dimensions:
+          $ref: "#/components/schemas/Dimensions"
+        warrantyInformation:
+          type: string
+          example: "1 month warranty"
+        shippingInformation:
+          type: string
+          example: "Ships in 1 month"
+        availabilityStatus:
+          type: string
+          example: "Low Stock"
+        reviews:
+          type: array
+          items:
+            $ref: "#/components/schemas/Review"
+        returnPolicy:
+          type: string
+          example: "30 days return policy"
+        minimumOrderQuantity:
+          type: integer
+          example: 24
+        meta:
+          $ref: "#/components/schemas/ProductMeta"
+        thumbnail:
+          type: string
+          format: uri
+        images:
+          type: array
+          items:
+            type: string
+            format: uri
+
+    DeletedProduct:
+      allOf:
+        - $ref: "#/components/schemas/Product"
+        - type: object
+          properties:
+            isDeleted:
+              type: boolean
+              example: true
+            deletedOn:
+              type: string
+              format: date-time
+
+    ProductListResponse:
+      type: object
+      properties:
+        products:
+          type: array
+          items:
+            $ref: "#/components/schemas/Product"
+        total:
+          type: integer
+          example: 194
+        skip:
+          type: integer
+          example: 0
+        limit:
+          type: integer
+          example: 30
+
+    ProductCategory:
+      type: object
+      properties:
+        slug:
+          type: string
+          example: beauty
+        name:
+          type: string
+          example: Beauty
+        url:
+          type: string
+          format: uri
+          example: "https://dummyjson.com/products/category/beauty"
