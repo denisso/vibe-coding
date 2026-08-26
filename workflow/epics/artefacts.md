@@ -1,166 +1,113 @@
 ## Epic 1: Authentication and Session Management
 
-### Feature 1.1: User Authentication (UI and logic)
+### Feature 1.1: User Authentication
 
-#### Task 1.1.1 – Create the Login page according to the Figma design
-- Create the page component `pages/login/ui/LoginPage.tsx`.
-- Build the form with "Username" and "Password" fields, a Submit button, a "Remember me" checkbox, and a placeholder "Create" link.
-- Use Tailwind for styling (match the layout).
-- Set up routing: path `/login`, accessible without authentication.
+#### User Story 1.1.1: Login form with field validation
+As an unauthenticated user, I want to see a login form with "Username" and "Password" fields so that I can enter my credentials.
 
-**Subtask:**
-- Create the `pages/login` folder following FSD (pages layer).
-- Add basic markup (container, card, fields).
-- Implement reusable input and button components from `shared/ui`.
-- Add the checkbox and "Create" link (no action).
+**Acceptance Criteria:**
+- The form contains input fields for username and password.
+- Fields are required (validation for empty values).
+- A submit button is present.
+- The layout matches the Figma design.
 
-**Dependencies:** none.
+#### User Story 1.1.2: Display errors on failed login attempt
+As a user, I want to receive error messages on failed login attempts so that I understand the reason for rejection.
 
----
+**Acceptance Criteria:**
+- On API error (e.g., invalid credentials), a notification or error message is shown below the relevant field.
+- Validation errors (empty fields) are displayed below the fields before submission or after an attempt.
 
-#### Task 1.1.2 – Implement client‑side field validation
-- Validate that both fields (username and password) are required.
-- Display error messages below the respective fields when validation fails.
-- Use React Hook Form + Zod (or manual validation with `useState` – team choice).
+#### User Story 1.1.3: Session persistence with "Remember me" checkbox
+As a user, I want to keep my session when the "Remember me" checkbox is checked so that I don't have to re-enter credentials after closing the browser.
 
-**Subtask:**
-- Set up form validation (react-hook-form + Zod schema).
-- Add error states and display them in the UI.
-- Handle form submission: trigger validation and then the API call.
+**Acceptance Criteria:**
+- When the checkbox is checked, the token is stored in localStorage.
+- When unchecked, the token is stored in sessionStorage.
+- After login, the user is redirected to the product list page.
 
-**Dependencies:** Task 1.1.1 (the form markup is ready).
+#### User Story 1.1.4: "Create" link as a placeholder
+As a user, I want to see a "Create" link on the login form (placeholder) to understand that registration may be available in the future.
 
----
-
-#### Task 1.1.3 – Create the API client for DummyJSON Auth and implement login
-- Create the service `shared/api/auth.ts` with a `login(username, password)` function.
-- Use `fetch` or `axios` (already installed).
-- Handle successful response (receiving a token) and errors (status 400).
-- On error, propagate the message to the component for display.
-
-**Subtask:**
-- Write types for the response (TokenResponse, ErrorResponse).
-- Handle network errors (e.g., `try/catch`).
-- Integrate the API call into the form submission handler.
-
-**Dependencies:** Task 1.1.2 (the form is ready to submit).
+**Acceptance Criteria:**
+- The "Create" link is displayed but does not navigate anywhere (no logic for redirection).
 
 ---
 
-#### Task 1.1.4 – Manage session state (Zustand store)
-- Create `features/auth/model/auth.store.ts` with state: `user`, `token`, `isAuthenticated`.
-- Add actions: `login(token, user)`, `logout()`, `restoreSession()`.
-- Use `persist` middleware (or manual storage) – but storage logic will be in Task 1.1.5.
+## Epic 2: Product Management (Catalog)
 
-**Subtask:**
-- Define types for the state.
-- Implement `login` and `logout` methods.
-- Subscribe components to state changes (e.g., for redirects).
+### Feature 2.1: Product List View
 
-**Dependencies:** none (can be done in parallel with UI).
+#### User Story 2.1.1: Display product table
+As an authenticated user, I want to see a product table with columns (Name, Price, Vendor, SKU, Rating) so that I can browse the catalog.
 
----
+**Acceptance Criteria:**
+- Data is loaded from the DummyJSON API (Products).
+- Columns match the Figma design.
+- A progress bar is shown while loading data.
 
-#### Task 1.1.5 – Implement session persistence (localStorage / sessionStorage) based on the checkbox
-- On successful login:
-  - if the "Remember me" checkbox is checked – store the token in `localStorage`;
-  - otherwise – store it in `sessionStorage`.
-- On app initialisation, check both storages and restore the session (call `restoreSession`).
-- On logout, clear both storages and reset the state.
+#### User Story 2.1.2: Loading indicator (progress bar)
+As a user, I want to see a loading indicator (progress bar) while data is being fetched so that I know the process is ongoing.
 
-**Subtask:**
-- Write utilities for reading/writing to `localStorage` / `sessionStorage`.
-- Integrate the check on app load (in `App` or `main.tsx`).
-- Connect the checkbox state to determine which storage to use on login.
+**Acceptance Criteria:**
+- The progress bar appears during API requests.
+- After loading completes, the progress bar disappears.
 
-**Dependencies:** Task 1.1.4 (store ready), Task 1.1.1 (checkbox exists).
+#### User Story 2.1.3: Highlight products with low rating (< 3.5)
+As a user, I want to see products with a rating < 3.5 highlighted in red so that I can quickly spot low-quality items.
 
----
+**Acceptance Criteria:**
+- Each row's rating is checked.
+- If the rating is < 3.5, the rating value or the entire row is highlighted in red (per design).
 
-#### Task 1.1.6 – Redirect after login and protect routes
-- After successful login, redirect to `/products` (the main page).
-- Create a `PrivateRoute` component (or use `Navigate` from react-router) to check `isAuthenticated`.
-- Protect the product list page and other private routes.
+### Feature 2.2: Product Sorting
 
-**Subtask:**
-- In `LoginPage`, call `useNavigate` after successful login.
-- Create an HOC or wrapper component `RequireAuth`.
-- Wrap private pages in the router.
+#### User Story 2.2.1: Sort by columns (price, rating, etc.)
+As a user, I want to sort products by columns (e.g., price or rating) so that I can order data conveniently.
 
-**Dependencies:** Task 1.1.4 (store with auth flag), Task 1.1.5 (session restoration).
+**Acceptance Criteria:**
+- Sorting is available for columns: Price, Rating (and others if specified in the design).
+- Clicking a column header toggles sorting (ascending/descending).
 
----
+#### User Story 2.2.2: Persist sorting state
+As a user, I want the sorting state to persist after page reload so that I don't have to reconfigure it.
 
-#### Task 1.1.7 – Add API error handling and notification display
-- On login error (invalid credentials), show the error message below the field or via a Toast notification.
-- Create a reusable `Toast` component in `shared/ui` for displaying error messages (and later for success actions).
+**Acceptance Criteria:**
+- Sorting state (column, direction) is stored in URL parameters or localStorage.
+- On page reload, the saved state is applied.
 
-**Subtask:**
-- Write a Toast component with enter/exit animations.
-- Connect API errors to the error state in the form component.
-- Use Zustand for global toast management (or local state).
+#### User Story 2.2.3: Three-dot menu (refresh and quick sort)
+As a user, I want to use the three-dot menu to refresh the table and apply quick sorting so that I can manage data display.
 
-**Dependencies:** Task 1.1.3 (API returns errors), Task 1.1.2 (form can display errors).
+**Acceptance Criteria:**
+- The three-dot icon opens a dropdown menu.
+- A "Refresh" option reloads table data.
+- "Sort ascending/descending" options apply sorting to the active column (or the first column by default).
 
----
+### Feature 2.3: Add New Product (Local)
 
-#### Task 1.1.8 – "Create" link as a placeholder
-- Ensure the "Create" link does not navigate anywhere (e.g., `href="#"` or an empty `onClick`).
-- Style it according to the Figma design.
+#### User Story 2.3.1: Open add product form
+As a user, I want to open the add product form via the "Add" button so that I can enter details for a new product.
 
-**Subtask:**
-- Add the link component with appropriate Tailwind classes.
-- Block navigation (`event.preventDefault` or empty href).
+**Acceptance Criteria:**
+- Clicking "Add" opens a modal or a separate form.
+- Form fields: Name, Price, Vendor, SKU.
 
-**Dependencies:** Task 1.1.1 (form markup ready).
+#### User Story 2.3.2: Local addition without saving to API
+As a user, I want to add a product locally (without saving to the server) so that I can see it in the table immediately.
 
----
+**Acceptance Criteria:**
+- After filling and submitting the form, the product is added to the state (Zustand) and displayed in the table.
+- No API request is made for saving.
+- A basic Toast notification appears on successful addition.
 
-### Feature 1.2 – Session restoration and logout (additional tasks, separated)
+### Feature 2.4: Product Search
 
-#### Task 1.2.1 – Implement automatic session restoration on app load
-- In the entry point (e.g., `App.tsx`), call `restoreSession` from the store.
-- If a token exists in `localStorage` or `sessionStorage` – set `isAuthenticated = true` and optionally load user data.
-- If the token is invalid – clear storage and reset state.
+#### User Story 2.4.1: Search via API by name
+As a user, I want to search for products by name through the API so that I can quickly find the desired product.
 
-**Subtask:**
-- Extend `auth.store` with the `restoreSession` action.
-- Call this action when the root component mounts.
-
-**Dependencies:** Task 1.1.4, Task 1.1.5.
-
----
-
-#### Task 1.2.2 – Implement logout
-- Create a logout button in the header (or wherever the design specifies) – can be deferred to the second epic, but included here for completeness.
-- On click, call `logout` from the store, clear storages, and redirect to `/login`.
-
-**Subtask:**
-- Add a logout button on the main page (temporary placement).
-- Perform redirect after clearing.
-
-**Dependencies:** Task 1.1.4.
-
----
-
-#### Task 1.2.3 – Create a shared token utility (shared/lib/token.ts)
-- Extract logic for reading/writing/removing tokens from different storages into a separate module.
-- Encapsulate the choice of storage depending on the `remember` flag.
-
-**Subtask:**
-- Write functions `setToken`, `getToken`, `removeToken`.
-- Integrate them into the store and the login form.
-
-**Dependencies:** Task 1.1.5 (used for persistence).
-
----
-
-### Execution order (dependencies between tasks):
-- 1.1.1 → 1.1.2 → 1.1.3 (sequential chain: UI → validation → API).
-- 1.1.4 and 1.1.5 can be parallel with UI, but 1.1.5 requires the checkbox (1.1.1).
-- 1.1.6 requires 1.1.4 and 1.1.5.
-- 1.1.7 requires 1.1.3 and 1.1.2.
-- 1.2.1 requires 1.1.4 and 1.1.5.
-- 1.2.2 requires 1.1.4.
-
-All tasks should be implemented within the first epic. Estimated complexity – about 2–3 sprints (depending on the number of developers).
+**Acceptance Criteria:**
+- A search field is present on the product list page.
+- Search is implemented via the DummyJSON API (query parameter).
+- Search results are displayed in the table.
+- A loading state (progress bar) is shown during the search request.
