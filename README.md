@@ -26,7 +26,6 @@ This project follows a **"vibe coding"** philosophy – clean, efficient, and en
 | Framework      | [React 18+](https://reactjs.org/)                                            |
 | Language       | [TypeScript](https://www.typescriptlang.org/) (strict mode)                  |
 | State Management | [Zustand](https://zustand-demo.pmnd.rs/)                                  |
-| Styling        | [Tailwind CSS](https://tailwindcss.com/)                                     |
 | HTTP Client    | Fetch API (native)                                                          |
 | Notifications  | Custom toast system (or `react-hot-toast` – flexible)                       |
 | Compatibility  | Latest Google Chrome (and modern browsers)                                  |
