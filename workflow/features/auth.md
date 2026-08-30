@@ -1,6 +1,4 @@
-Прошу прощения, я неправильно понял задачу. Вот конвертация вашей задачи в сценарии в формате **Markdown** с использованием `GIVEN/WHEN/THEN`:
 
-```markdown
 ### Scenario: Storage utility exports required functions
 
 - **GIVEN** the project is set up with TypeScript
@@ -139,4 +137,4 @@
 - **GIVEN** the `request()` function is called with any valid URL
 - **WHEN** the request completes
 - **THEN** the function SHALL return a `Promise` that resolves to a `Response` object
-```
+
