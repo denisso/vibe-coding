@@ -1,140 +1,62 @@
+# HTTP Client with Authorization Interceptor
 
-### Scenario: Storage utility exports required functions
+### Requirement: Token storage utility
 
-- **GIVEN** the project is set up with TypeScript
-- **WHEN** the developer creates `src/shared/lib/storage.ts`
-- **THEN** the file SHALL export a function `getToken(): string | null`
-- **AND** the file SHALL export a function `setToken(token: string, remember: boolean): void`
-- **AND** the file SHALL export a function `clearToken(): void`
+The system SHALL provide utilities to manage an authentication token in web storage. It SHALL read the token from `localStorage` first, then `sessionStorage`, using the fixed key `'auth_token'`. It SHALL allow writing the token to `localStorage` when a `remember` flag is `true`, otherwise to `sessionStorage`. It SHALL allow clearing the token from both storages.
 
----
+#### Scenario: Reading token when present in localStorage returns it
 
-### Scenario: getToken reads from localStorage first
+- **WHEN** `getToken()` is called and a token exists in `localStorage` under `'auth_token'`
+- **THEN** `getToken()` SHALL return the token value from `localStorage`
 
-- **GIVEN** a token exists in `localStorage` with key `'auth_token'`
-- **AND** no token exists in `sessionStorage` with the same key
-- **WHEN** the `getToken()` function is called
-- **THEN** it SHALL return the token from `localStorage`
+#### Scenario: Reading token when only in sessionStorage returns it
 
----
+- **WHEN** `getToken()` is called and no token exists in `localStorage` but a token exists in `sessionStorage` under `'auth_token'`
+- **THEN** `getToken()` SHALL return the token value from `sessionStorage`
 
-### Scenario: getToken falls back to sessionStorage
+#### Scenario: Setting token with `remember: true` stores in localStorage
 
-- **GIVEN** no token exists in `localStorage` with key `'auth_token'`
-- **AND** a token exists in `sessionStorage` with key `'auth_token'`
-- **WHEN** the `getToken()` function is called
-- **THEN** it SHALL return the token from `sessionStorage`
-
----
-
-### Scenario: getToken returns null when no token exists
-
-- **GIVEN** no token exists in either `localStorage` or `sessionStorage`
-- **WHEN** the `getToken()` function is called
-- **THEN** it SHALL return `null`
-
----
-
-### Scenario: setToken writes to localStorage when remember is true
-
-- **GIVEN** `setToken(token, true)` is called with a valid token
-- **WHEN** the function executes
+- **WHEN** `setToken(token, true)` is called
 - **THEN** the token SHALL be written to `localStorage` with key `'auth_token'`
 - **AND** the token SHALL NOT be written to `sessionStorage`
 
----
+#### Scenario: Setting token with `remember: false` stores in sessionStorage
 
-### Scenario: setToken writes to sessionStorage when remember is false
-
-- **GIVEN** `setToken(token, false)` is called with a valid token
-- **WHEN** the function executes
+- **WHEN** `setToken(token, false)` is called
 - **THEN** the token SHALL be written to `sessionStorage` with key `'auth_token'`
 - **AND** the token SHALL NOT be written to `localStorage`
 
----
+#### Scenario: Clearing token removes from both storages
 
-### Scenario: clearToken removes token from both storages
-
-- **GIVEN** a token exists in both `localStorage` and `sessionStorage`
-- **WHEN** the `clearToken()` function is called
-- **THEN** the token SHALL be removed from `localStorage`
-- **AND** the token SHALL be removed from `sessionStorage`
+- **WHEN** `clearToken()` is called
+- **THEN** the token SHALL be removed from `localStorage` (if present)
+- **AND** the token SHALL be removed from `sessionStorage` (if present)
 
 ---
 
-### Scenario: request exports a fetch wrapper function
+### Requirement: HTTP client with automatic authorization header injection
 
-- **GIVEN** the project is set up with TypeScript
-- **WHEN** the developer creates `src/shared/api/base.ts`
-- **THEN** the file SHALL export a function `request(url: string, options?: RequestInit): Promise<Response>`
+The system SHALL provide a `request` function that wraps `fetch` and automatically injects an `Authorization` header with a `Bearer` token if a token is available from the storage utility. It SHALL prepend the base URL `'https://dummyjson.com'` to relative paths. It SHALL preserve any custom headers provided in the `options` argument, but the `Authorization` header SHALL be overridden by the token when present.
 
----
+#### Scenario: Request with relative path and token in storage adds Authorization header
 
-### Scenario: request prepends base URL for relative paths
-
-- **GIVEN** the function `request('/products')` is called
-- **WHEN** the request is sent
+- **WHEN** `request('/products')` is called and a token exists in storage
 - **THEN** the request SHALL be sent to `https://dummyjson.com/products`
-- **AND** the base URL `https://dummyjson.com` SHALL be prepended
+- **AND** the request SHALL include an `Authorization` header with value `Bearer <token>`
 
----
+#### Scenario: Request with relative path and no token does not add Authorization
 
-### Scenario: request does not prepend base URL for absolute URLs
+- **WHEN** `request('/products')` is called and no token exists in storage
+- **THEN** the request SHALL be sent to `https://dummyjson.com/products`
+- **AND** the request SHALL NOT include an `Authorization` header
 
-- **GIVEN** the function `request('https://other.com/api')` is called
-- **WHEN** the request is sent
-- **THEN** the request SHALL be sent to `https://other.com/api` exactly as provided
-- **AND** the base URL SHALL NOT be prepended
+#### Scenario: Request with absolute URL does not prepend base URL
 
----
+- **WHEN** `request('https://other.com/api')` is called
+- **THEN** the request SHALL be sent to `https://other.com/api` without prepending the base URL
 
-### Scenario: request includes Authorization header when token exists
+#### Scenario: Request with custom headers preserves them and overrides Authorization with token
 
-- **GIVEN** a token exists in storage with value `'test123'`
-- **WHEN** the `request()` function is called with any path
-- **THEN** the request SHALL include the header `Authorization: Bearer test123`
-
----
-
-### Scenario: request does not include Authorization header when no token exists
-
-- **GIVEN** no token exists in either `localStorage` or `sessionStorage`
-- **WHEN** the `request()` function is called with any path
-- **THEN** the request SHALL NOT include the `Authorization` header
-
----
-
-### Scenario: request preserves user-provided headers
-
-- **GIVEN** the `request()` function is called with custom headers `{ 'X-Custom': 'value' }`
-- **WHEN** the request is sent
+- **WHEN** `request('/products', { headers: { 'X-Custom': 'value', 'Authorization': 'Basic foo' } })` is called and a token exists in storage
 - **THEN** the request SHALL include the custom header `X-Custom: value`
-- **AND** the `Authorization` header SHALL be added if a token exists
-
----
-
-### Scenario: request overrides user-provided Authorization header
-
-- **GIVEN** a token exists in storage with value `'test123'`
-- **AND** the user provides an `Authorization` header with value `'Bearer fake'`
-- **WHEN** the `request()` function is called
-- **THEN** the `Authorization` header SHALL be set to `Bearer test123`
-- **AND** the user-provided `Authorization` header SHALL be overridden
-
----
-
-### Scenario: request accepts all standard RequestInit options
-
-- **GIVEN** the `request()` function is called with `{ method: 'POST', body: JSON.stringify({}) }`
-- **WHEN** the request is sent
-- **THEN** the request SHALL use the specified `method` and `body`
-- **AND** the function SHALL accept all standard `RequestInit` properties (`method`, `body`, `headers`, `credentials`, etc.)
-
----
-
-### Scenario: request returns a Promise<Response>
-
-- **GIVEN** the `request()` function is called with any valid URL
-- **WHEN** the request completes
-- **THEN** the function SHALL return a `Promise` that resolves to a `Response` object
-
+- **AND** the request SHALL include an `Authorization` header with value `Bearer <token>` (overriding the custom one)
