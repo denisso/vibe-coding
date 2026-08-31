@@ -50,7 +50,8 @@ The system SHALL provide a `request` function that wraps `fetch` and automatical
 
 **Scenario ID:** `http-client-auth.http-client.relative-with-token`
 
-- **WHEN** `request('/products')` is called and a token exists in storage
+- **GIVEN** a token exists in storage
+- **WHEN** `request('/products')` is called
 - **THEN** the request SHALL be sent to `https://dummyjson.com/products`
 - **AND** the request SHALL include an `Authorization` header with value `Bearer <token>`
 
@@ -58,7 +59,8 @@ The system SHALL provide a `request` function that wraps `fetch` and automatical
 
 **Scenario ID:** `http-client-auth.http-client.relative-no-token`
 
-- **WHEN** `request('/products')` is called and no token exists in storage
+- **GIVEN** no token exists in storage
+- **WHEN** `request('/products')` is called
 - **THEN** the request SHALL be sent to `https://dummyjson.com/products`
 - **AND** the request SHALL NOT include an `Authorization` header
 
@@ -73,6 +75,7 @@ The system SHALL provide a `request` function that wraps `fetch` and automatical
 
 **Scenario ID:** `http-client-auth.http-client.custom-headers-override`
 
-- **WHEN** `request('/products', { headers: { 'X-Custom': 'value', 'Authorization': 'Basic foo' } })` is called and a token exists in storage
+- **GIVEN** a token exists in storage and custom headers (`X-Custom`, `Authorization`) are provided in `options`
+- **WHEN** `request('/products', { headers: { 'X-Custom': 'value', 'Authorization': 'Basic foo' } })` is called
 - **THEN** the request SHALL include the custom header `X-Custom: value`
 - **AND** the request SHALL include an `Authorization` header with value `Bearer <token>` (overriding the custom one)
