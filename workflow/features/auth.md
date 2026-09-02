@@ -4,21 +4,15 @@ The system SHALL provide utilities to manage an authentication token in web stor
 
 #### Scenario: Reading token when present in localStorage returns it
 
-**Scenario ID:** `http-client-auth.token-storage.read-localstorage`
-
 - **WHEN** `getToken()` is called and a token exists in `localStorage` under `'auth_token'`
 - **THEN** `getToken()` SHALL return the token value from `localStorage`
 
 #### Scenario: Reading token when only in sessionStorage returns it
 
-**Scenario ID:** `http-client-auth.token-storage.read-sessionstorage`
-
 - **WHEN** `getToken()` is called and no token exists in `localStorage` but a token exists in `sessionStorage` under `'auth_token'`
 - **THEN** `getToken()` SHALL return the token value from `sessionStorage`
 
 #### Scenario: Setting token with `remember: true` stores in localStorage
-
-**Scenario ID:** `http-client-auth.token-storage.set-remember-true`
 
 - **WHEN** `setToken(token, true)` is called
 - **THEN** the token SHALL be written to `localStorage` with key `'auth_token'`
@@ -26,15 +20,11 @@ The system SHALL provide utilities to manage an authentication token in web stor
 
 #### Scenario: Setting token with `remember: false` stores in sessionStorage
 
-**Scenario ID:** `http-client-auth.token-storage.set-remember-false`
-
 - **WHEN** `setToken(token, false)` is called
 - **THEN** the token SHALL be written to `sessionStorage` with key `'auth_token'`
 - **AND** the token SHALL NOT be written to `localStorage`
 
 #### Scenario: Clearing token removes from both storages
-
-**Scenario ID:** `http-client-auth.token-storage.clear`
 
 - **WHEN** `clearToken()` is called
 - **THEN** the token SHALL be removed from `localStorage` (if present)
@@ -47,8 +37,6 @@ The system SHALL provide utilities to manage an authentication token in web stor
 The system SHALL provide a `request` function that wraps `fetch` and automatically injects an `Authorization` header with a `Bearer` token if a token is available from the storage utility. It SHALL prepend the base URL `'https://dummyjson.com'` to relative paths. It SHALL preserve any custom headers provided in the `options` argument, but the `Authorization` header SHALL be overridden by the token when present.
 
 #### Scenario: Request with relative path and token in storage adds Authorization header
-
-**Scenario ID:** `http-client-auth.http-client.relative-with-token`
 
 - **GIVEN** a token exists in storage
 - **WHEN** `request('/products')` is called
@@ -66,14 +54,10 @@ The system SHALL provide a `request` function that wraps `fetch` and automatical
 
 #### Scenario: Request with absolute URL does not prepend base URL
 
-**Scenario ID:** `http-client-auth.http-client.absolute-url`
-
 - **WHEN** `request('https://other.com/api')` is called
 - **THEN** the request SHALL be sent to `https://other.com/api` without prepending the base URL
 
 #### Scenario: Request with custom headers preserves them and overrides Authorization with token
-
-**Scenario ID:** `http-client-auth.http-client.custom-headers-override`
 
 - **GIVEN** a token exists in storage and custom headers (`X-Custom`, `Authorization`) are provided in `options`
 - **WHEN** `request('/products', { headers: { 'X-Custom': 'value', 'Authorization': 'Basic foo' } })` is called
