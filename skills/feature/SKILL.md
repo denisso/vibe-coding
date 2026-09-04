@@ -1,4 +1,4 @@
-`---
+---
 name: requirement-scenario-spec
 description: >
   Converts requirements given in any input format (free prose, bullet notes,
